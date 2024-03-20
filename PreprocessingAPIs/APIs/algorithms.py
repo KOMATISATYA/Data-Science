@@ -39,8 +39,6 @@ conn.commit()
 
 app = FastAPI()
 
-
-
 def save_file_processed(df, table_name):
     print("....")
     print(df)
@@ -550,6 +548,9 @@ async def naive_bayes_classification(
     if target_column not in data.columns:
         raise HTTPException(status_code=400, detail=f"Target column '{target_column}' not found in the data.")
     
+    if data.isnull().values.any():
+        raise HTTPException(status_code=400, detail="Data contains null values.")
+    
     string_columns = data.select_dtypes(include=['object']).columns
     if len(string_columns) > 0:
         raise HTTPException(status_code=400, detail="Data contains string values.")
@@ -579,3 +580,58 @@ async def naive_bayes_classification(
     
     return {"accuracy": accuracy, "precision": precision, "recall": recall, "f1_score": f1}
 
+
+@app.post("/knn")
+async def knn(
+        file: UploadFile=File(...),
+        target_column: str =Form(...),
+        neighbors:int= Form(...)
+):
+    content = await file.read()
+
+    # Use io.BytesIO to convert the content to a file-like object
+    file_like_object = io.BytesIO(content)
+
+    # Read the data from the file-like object
+    if file.filename.endswith('.csv'):
+        data = pd.read_csv(file_like_object)
+    elif file.filename.endswith(('.xls', '.xlsx')):
+        data = pd.read_excel(file_like_object)
+    else:
+        raise HTTPException(status_code=400, detail="File type not supported")
+
+    if target_column not in data.columns:
+        raise HTTPException(status_code=400, detail=f"Target column '{target_column}' not found in the data.")
+    
+    if data.isnull().values.any():
+        raise HTTPException(status_code=400, detail="Data contains null values.")
+    
+    string_columns = data.select_dtypes(include=['object']).columns
+    if len(string_columns) > 0:
+        raise HTTPException(status_code=400, detail="Data contains string values.")
+
+    # Save data to database (if needed)
+    table_name = file.filename.split("/")[-1].replace(".csv", "_table")
+    save_file_processed(data, table_name)
+
+    X = data.drop(columns=[target_column])
+    y = data[target_column]
+    
+    # Split the dataset into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+    # Train the Naive Bayes classifier
+    clf = KNeighborsClassifier(n_neighbors=neighbors)
+    clf.fit(X_train, y_train)
+    
+    # Make predictions
+    y_pred = clf.predict(X_test)
+    
+    # Calculate evaluation metrics
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred, average='weighted')
+    recall = recall_score(y_test, y_pred, average='weighted')
+    f1 = f1_score(y_test, y_pred, average='weighted')
+    confusion_mat = confusion_matrix(y_test, y_pred).tolist()
+    
+    return {"confusion_matrix":confusion_mat,"accuracy": accuracy, "precision": precision, "recall": recall, "f1_score": f1}

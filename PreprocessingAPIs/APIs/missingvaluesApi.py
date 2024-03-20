@@ -41,6 +41,7 @@ print(result)
 conn.commit()
 
 def save_file_processed(df, table_name):
+    
     print("....")
     print(df)
     create_table_query = f"CREATE TABLE IF NOT EXISTS `{table_name}` ("
@@ -546,5 +547,8 @@ async def encodingStringValues(file: UploadFile = File(...),mode:str=Form(...)):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+
+
+
 
 
