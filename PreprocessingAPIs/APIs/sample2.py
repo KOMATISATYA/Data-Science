@@ -1,0 +1,4 @@
+dictionary = {'encoded_data': [{'area': 0, 'age': 1, 'bedrooms': 6, 'cost': 0, 'Gender': 0}, {'area': 1, 'age': 0, 'bedrooms': 3, 'cost': 1, 'Gender': 1}, {'area': 2, 'age': 0, 'bedrooms': 0, 'cost': 2, 'Gender': 0}, {'area': 3, 'age': 5, 'bedrooms': 1, 'cost': 4, 'Gender': 1}, {'area': 4, 'age': 2, 'bedrooms': 4, 'cost': 3, 'Gender': 1}, {'area': 5, 'age': 6, 'bedrooms': 4, 'cost': 5, 'Gender': 0}, {'area': 6, 'age': 4, 'bedrooms': 5, 'cost': 6, 'Gender': 0}, {'area': 4, 'age': 3, 'bedrooms': 2, 'cost': 5, 'Gender': 1}]}
+
+print(dictionary['encoded_data'][0].keys())
+print(dictionary['encoded_data'])
