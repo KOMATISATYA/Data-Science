@@ -31,7 +31,7 @@ conn = mysql.connector.connect(
 conn.autocommit = True
 cursor = conn.cursor()
 database_name = 'mldb'
-create_query = f"CREATE DATABASE IF NOT EXISTS {database_name}"
+create_query = f"CREATE DATABASE IF NOT EXISTS {database_name}" 
 cursor.execute(create_query)
 query2=f"use {database_name}"
 cursor.execute(query2)
@@ -547,8 +547,8 @@ async def encodingStringValues(file: UploadFile = File(...),mode:str=Form(...)):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
-
-
+ 
+    
 
 
 
