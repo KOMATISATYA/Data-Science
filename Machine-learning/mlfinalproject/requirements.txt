@@ -1,0 +1,8 @@
+fastapi[all]~=0.104.1
+uvicorn
+pandas
+numpy
+scikit-learn
+category_encoders
+xgboost
+psycopg2
