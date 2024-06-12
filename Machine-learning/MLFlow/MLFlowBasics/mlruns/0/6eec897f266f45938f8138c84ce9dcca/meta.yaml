@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Komati%20Satya/MLFlowBasics/mlruns/0/6eec897f266f45938f8138c84ce9dcca/artifacts
+end_time: 1709120358314
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 6eec897f266f45938f8138c84ce9dcca
+run_name: selective-shrike-444
+run_uuid: 6eec897f266f45938f8138c84ce9dcca
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1709120356089
+status: 4
+tags: []
+user_id: Komati Satya

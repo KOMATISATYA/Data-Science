@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Komati%20Satya/MLFlowBasics/mlruns/0/d8ec2c9087bc45acbe7d77e26f65ae1f/artifacts
+end_time: 1709021151585
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: d8ec2c9087bc45acbe7d77e26f65ae1f
+run_name: puzzled-snipe-887
+run_uuid: d8ec2c9087bc45acbe7d77e26f65ae1f
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1709021145269
+status: 3
+tags: []
+user_id: Komati Satya

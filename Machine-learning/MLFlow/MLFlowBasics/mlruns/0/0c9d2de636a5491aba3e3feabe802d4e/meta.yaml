@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Komati%20Satya/MLFlowBasics/mlruns/0/0c9d2de636a5491aba3e3feabe802d4e/artifacts
+end_time: 1709535617977
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 0c9d2de636a5491aba3e3feabe802d4e
+run_name: wise-wren-330
+run_uuid: 0c9d2de636a5491aba3e3feabe802d4e
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1709535609598
+status: 3
+tags: []
+user_id: Komati Satya

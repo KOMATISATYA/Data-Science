@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Komati%20Satya/MLFlowBasics/mlruns/0/d2ebd983df80491aa53a27a1cccb6775/artifacts
+end_time: 1709276787376
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: d2ebd983df80491aa53a27a1cccb6775
+run_name: vaunted-lark-825
+run_uuid: d2ebd983df80491aa53a27a1cccb6775
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1709276785507
+status: 3
+tags: []
+user_id: Komati Satya

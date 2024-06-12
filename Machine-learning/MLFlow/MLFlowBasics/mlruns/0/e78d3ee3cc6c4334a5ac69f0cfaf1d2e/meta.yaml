@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Komati%20Satya/MLFlowBasics/mlruns/0/e78d3ee3cc6c4334a5ac69f0cfaf1d2e/artifacts
+end_time: 1709534416996
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: e78d3ee3cc6c4334a5ac69f0cfaf1d2e
+run_name: kindly-squid-769
+run_uuid: e78d3ee3cc6c4334a5ac69f0cfaf1d2e
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1709534406541
+status: 4
+tags: []
+user_id: Komati Satya

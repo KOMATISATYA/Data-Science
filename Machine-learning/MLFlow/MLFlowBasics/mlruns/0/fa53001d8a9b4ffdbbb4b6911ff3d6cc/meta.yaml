@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Komati%20Satya/MLFlowBasics/mlruns/0/fa53001d8a9b4ffdbbb4b6911ff3d6cc/artifacts
+end_time: 1709535837069
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: fa53001d8a9b4ffdbbb4b6911ff3d6cc
+run_name: skillful-panda-604
+run_uuid: fa53001d8a9b4ffdbbb4b6911ff3d6cc
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1709535620065
+status: 3
+tags: []
+user_id: Komati Satya

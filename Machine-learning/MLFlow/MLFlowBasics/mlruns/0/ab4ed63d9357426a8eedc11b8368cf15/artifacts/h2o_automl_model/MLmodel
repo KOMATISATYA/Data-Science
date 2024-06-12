@@ -1,0 +1,18 @@
+artifact_path: h2o_automl_model
+flavors:
+  h2o:
+    code: null
+    data: model.h2o
+    h2o_version: 3.44.0.3
+  python_function:
+    data: model.h2o
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.h2o
+    python_version: 3.11.5
+mlflow_version: 2.10.2
+model_size_bytes: 1051036
+model_uuid: a68e4d06f1094aacb3283b87299c813c
+run_id: ab4ed63d9357426a8eedc11b8368cf15
+utc_time_created: '2024-03-04 07:53:43.752871'

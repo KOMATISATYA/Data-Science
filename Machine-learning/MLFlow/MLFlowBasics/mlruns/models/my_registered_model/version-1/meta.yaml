@@ -1,0 +1,14 @@
+aliases: []
+creation_timestamp: 1709281353962
+current_stage: None
+description: null
+last_updated_timestamp: 1709281353962
+name: my_registered_model
+run_id: b5c71fd720d24613beab1da36d4c2ca3
+run_link: null
+source: file:///C:/Users/Komati%20Satya/MLFlowBasics/mlruns/0/b5c71fd720d24613beab1da36d4c2ca3/artifacts/h2o_model
+status: READY
+status_message: null
+storage_location: file:///C:/Users/Komati%20Satya/MLFlowBasics/mlruns/0/b5c71fd720d24613beab1da36d4c2ca3/artifacts/h2o_model
+user_id: null
+version: 1

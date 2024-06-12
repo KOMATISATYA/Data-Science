@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Komati%20Satya/MLFlowBasics/mlruns/0/09c07fc44be749e5bb8f5f2f0580ffa5/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 09c07fc44be749e5bb8f5f2f0580ffa5
+run_name: bedecked-shrimp-120
+run_uuid: 09c07fc44be749e5bb8f5f2f0580ffa5
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1709271383872
+status: 1
+tags: []
+user_id: Komati Satya

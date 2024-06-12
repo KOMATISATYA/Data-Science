@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Komati%20Satya/MLFlowBasics/mlruns/0/b2dbf6669e0443bb974d14b0c6d2edec/artifacts
+end_time: 1709292126552
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: b2dbf6669e0443bb974d14b0c6d2edec
+run_name: capricious-lamb-899
+run_uuid: b2dbf6669e0443bb974d14b0c6d2edec
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1709292122361
+status: 4
+tags: []
+user_id: Komati Satya

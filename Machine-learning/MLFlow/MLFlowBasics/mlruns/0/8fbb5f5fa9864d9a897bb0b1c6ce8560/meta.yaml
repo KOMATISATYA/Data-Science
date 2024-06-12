@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Komati%20Satya/MLFlowBasics/mlruns/0/8fbb5f5fa9864d9a897bb0b1c6ce8560/artifacts
+end_time: 1709532558750
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 8fbb5f5fa9864d9a897bb0b1c6ce8560
+run_name: trusting-koi-647
+run_uuid: 8fbb5f5fa9864d9a897bb0b1c6ce8560
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1709532515599
+status: 3
+tags: []
+user_id: Komati Satya

@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Komati%20Satya/MLFlowBasics/mlruns/0/0b06d63aba524545a4e87d7c580f05be/artifacts
+end_time: 1709293690929
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 0b06d63aba524545a4e87d7c580f05be
+run_name: dashing-tern-423
+run_uuid: 0b06d63aba524545a4e87d7c580f05be
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1709293659082
+status: 3
+tags: []
+user_id: Komati Satya

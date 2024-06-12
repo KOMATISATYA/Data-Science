@@ -170,7 +170,6 @@ def scalling(df, method):
         # Selecting only numeric columns
         numeric_columns = df.select_dtypes(include=['number']).columns
         df_numeric = df[numeric_columns]
-
         # Initializing scaler based on the chosen method
         if method == 'standard':
             scaler = StandardScaler()
@@ -186,20 +185,15 @@ def scalling(df, method):
             scaler = QuantileTransformer()
         else:
             raise HTTPException(status_code=400,detail="Invalid scaling method. Choose 'standard', 'min_max', 'robust', 'max_abs', 'power', or 'quantile'.")
-
         # Scale the numeric columns
         scaled_data = scaler.fit_transform(df_numeric)
-
         # Creating a DataFrame with scaled numeric columns
         df_scaled_numeric = pd.DataFrame(scaled_data, columns=df_numeric.columns)
-
         # Getting non-numeric columns from the original DataFrame
         non_numeric_columns = df.select_dtypes(exclude=['number']).columns
         df_non_numeric = df[non_numeric_columns]
-
         # Concatenating scaled numeric columns with non-numeric columns
         df_scaled = pd.concat([df_scaled_numeric, df_non_numeric], axis=1)
-
         # Check if there are any NaN values after scaling
         if df_scaled.isnull().values.any():
             raise HTTPException(status_code=400,detail="DataFrame contains NaN or missing values after scaling.")
@@ -898,43 +892,100 @@ async def decision_tree_classification(
         y_pred = best_estimator.predict(X_test)
         y_pred_proba = best_estimator.predict_proba(X_test)  # For Log Loss and AUC
 
-        unique_classes = len(np.unique(y_test)) 
-        if unique_classes == 2:  
-            avg = 'binary'
-        else: 
-            avg = 'macro'
-        # Calculate metrics
-        accuracy = accuracy_score(y_test, y_pred)
-        precision = precision_score(y_test, y_pred, average=avg)
-        recall = recall_score(y_test, y_pred, average=avg)  
-        f1 = f1_score(y_test, y_pred, average=avg)
-        f1_micro = f1_score(y_test, y_pred, average='micro')
-        f1_macro = f1_score(y_test, y_pred, average='macro')
-        f1_weighted = f1_score(y_test, y_pred, average='weighted')
-        recall_micro = recall_score(y_test, y_pred, average='micro')
-        recall_macro = recall_score(y_test, y_pred, average='macro')
-        recall_weighted = recall_score(y_test, y_pred, average='weighted')
-        logloss = log_loss(y_test, y_pred_proba)  
+        # unique_classes = len(np.unique(y_test)) 
+        # if unique_classes == 2:  
+        #     avg = 'binary'
+        # else: 
+        #     avg = 'macro'
+        # # Calculate metrics
+        # accuracy = accuracy_score(y_test, y_pred)
+        # precision = precision_score(y_test, y_pred, average=avg)
+        # recall = recall_score(y_test, y_pred, average=avg)  
+        # f1 = f1_score(y_test, y_pred, average=avg)
+        # f1_micro = f1_score(y_test, y_pred, average='micro')
+        # f1_macro = f1_score(y_test, y_pred, average='macro')
+        # f1_weighted = f1_score(y_test, y_pred, average='weighted')
+        # recall_micro = recall_score(y_test, y_pred, average='micro')
+        # recall_macro = recall_score(y_test, y_pred, average='macro')
+        # recall_weighted = recall_score(y_test, y_pred, average='weighted')
+        # logloss = log_loss(y_test, y_pred_proba)  
         
-        # Confusion Matrix and Specificity
-        tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
-        confusion_mat = confusion_matrix(y_test, y_pred).tolist()
-        specificity = tn / (tn + fp)  
-        sensitivity = recall 
-        # Calculate AUC
-        auc = roc_auc_score(y_test, y_pred_proba[:, 1])
-        balanced_accuracy = (specificity + sensitivity) / 2
-        average_precision = average_precision_score(y_test, y_pred_proba[:, 1])
-        end_time=datetime.now()
+        # # Confusion Matrix and Specificity
+        # tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
+        # confusion_mat = confusion_matrix(y_test, y_pred).tolist()
+        # specificity = tn / (tn + fp)  
+        # sensitivity = recall 
+        # # Calculate AUC
+        # auc = roc_auc_score(y_test, y_pred_proba[:, 1])
+        # balanced_accuracy = (specificity + sensitivity) / 2
+        # average_precision = average_precision_score(y_test, y_pred_proba[:, 1])
+        # end_time=datetime.now()
 
+        # build_time=end_time-start_time
+        # formatted_build_time=format_time(build_time)
+
+        # results = {
+        #     "accuracy": accuracy,
+        #     "precision": precision,
+        #     "recall (sensitivity)": sensitivity,
+        #     "specificity": specificity,
+        #     "f1_score": f1,
+        #     "f1_micro": f1_micro,
+        #     "f1_macro": f1_macro,
+        #     "f1_weighted": f1_weighted,
+        #     "recall_micro": recall_micro,
+        #     "recall_macro": recall_macro,
+        #     "recall_weighted": recall_weighted,
+        #     "log_loss": logloss,
+        #     "auc": auc,
+        #     "balanced_accuracy":balanced_accuracy,
+        #     "average_precision":average_precision,
+        #     "confusion_matrix":confusion_mat,
+        #     "build_time":formatted_build_time,
+        #     "best_params": grid_search.best_params_,
+            
+        # }
+        # return results
+        unique_classes = np.unique(y_test)
+        if len(unique_classes) == 2:
+            avg = 'binary'
+        else:
+            avg = 'macro'    
+        print(unique_classes)
+        accuracy = accuracy_score(y_test, y_pred)
+        precision = precision_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+        recall = recall_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+        f1 = f1_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+        f1_micro = f1_score(y_test, y_pred, average='micro', labels=unique_classes, zero_division=0)
+        f1_macro = f1_score(y_test, y_pred, average='macro', labels=unique_classes, zero_division=0)
+        f1_weighted = f1_score(y_test, y_pred, average='weighted', labels=unique_classes, zero_division=0)
+        recall_micro = recall_score(y_test, y_pred, average='micro', labels=unique_classes, zero_division=0)
+        recall_macro = recall_score(y_test, y_pred, average='macro', labels=unique_classes, zero_division=0)
+        recall_weighted = recall_score(y_test, y_pred, average='weighted', labels=unique_classes, zero_division=0)
+
+        if len(unique_classes) > 1:
+            logloss = log_loss(y_test, y_pred_proba, labels=unique_classes)
+            if len(unique_classes) == 2:
+                print(unique_classes)
+                auc = roc_auc_score(y_test, y_pred_proba[:, 1])
+                average_precision = average_precision_score(y_test, y_pred_proba[:, 1])
+            else:
+                auc = roc_auc_score(y_test, y_pred_proba, multi_class='ovr')
+                average_precision = average_precision_score(y_test, y_pred_proba)
+        else:
+            logloss = None
+            auc = None
+            average_precision = None
+        
+        confusion_mat = confusion_matrix(y_test, y_pred, labels=unique_classes).tolist()   
+        end_time=datetime.now()
         build_time=end_time-start_time
         formatted_build_time=format_time(build_time)
 
         results = {
             "accuracy": accuracy,
             "precision": precision,
-            "recall (sensitivity)": sensitivity,
-            "specificity": specificity,
+            "recall (sensitivity)": recall,
             "f1_score": f1,
             "f1_micro": f1_micro,
             "f1_macro": f1_macro,
@@ -944,13 +995,11 @@ async def decision_tree_classification(
             "recall_weighted": recall_weighted,
             "log_loss": logloss,
             "auc": auc,
-            "balanced_accuracy":balanced_accuracy,
             "average_precision":average_precision,
             "confusion_matrix":confusion_mat,
-            "build_time":formatted_build_time,
-            "best_params": grid_search.best_params_,
-            
+            "build_time":formatted_build_time
         }
+
         return results
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -1006,32 +1055,38 @@ async def randomForest(
   
     y_pred = clf.predict(X_test)
     y_pred_proba = clf.predict_proba(X_test)  
-    unique_classes = len(np.unique(y_test)) 
-    if unique_classes == 2: 
+    unique_classes = np.unique(y_test)
+    if len(unique_classes) == 2:
         avg = 'binary'
     else:
-        avg = 'macro'
-    # Calculate metrics
+        avg = 'macro'  
+    print(unique_classes)
     accuracy = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred, average=avg)
-    recall = recall_score(y_test, y_pred, average=avg)  
-    f1 = f1_score(y_test, y_pred, average=avg)
-    f1_micro = f1_score(y_test, y_pred, average='micro')
-    f1_macro = f1_score(y_test, y_pred, average='macro')
-    f1_weighted = f1_score(y_test, y_pred, average='weighted')
-    recall_micro = recall_score(y_test, y_pred, average='micro')
-    recall_macro = recall_score(y_test, y_pred, average='macro')
-    recall_weighted = recall_score(y_test, y_pred, average='weighted')
-    logloss = log_loss(y_test, y_pred_proba) 
-    tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
-    confusion_mat = confusion_matrix(y_test, y_pred).tolist()
-    specificity = tn / (tn + fp) 
-    sensitivity = recall  
-    auc = roc_auc_score(y_test, y_pred_proba[:, 1])
-    sensitivity = recall
-    balanced_accuracy = (specificity + sensitivity) / 2
-    average_precision = average_precision_score(y_test, y_pred_proba[:, 1])
+    precision = precision_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+    recall = recall_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+    f1 = f1_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+    f1_micro = f1_score(y_test, y_pred, average='micro', labels=unique_classes, zero_division=0)
+    f1_macro = f1_score(y_test, y_pred, average='macro', labels=unique_classes, zero_division=0)
+    f1_weighted = f1_score(y_test, y_pred, average='weighted', labels=unique_classes, zero_division=0)
+    recall_micro = recall_score(y_test, y_pred, average='micro', labels=unique_classes, zero_division=0)
+    recall_macro = recall_score(y_test, y_pred, average='macro', labels=unique_classes, zero_division=0)
+    recall_weighted = recall_score(y_test, y_pred, average='weighted', labels=unique_classes, zero_division=0)
 
+    if len(unique_classes) > 1:
+        logloss = log_loss(y_test, y_pred_proba, labels=unique_classes)
+        if len(unique_classes) == 2:
+            print(unique_classes)
+            auc = roc_auc_score(y_test, y_pred_proba[:, 1])
+            average_precision = average_precision_score(y_test, y_pred_proba[:, 1])
+        else:
+            auc = roc_auc_score(y_test, y_pred_proba, multi_class='ovr')
+            average_precision = average_precision_score(y_test, y_pred_proba)
+    else:
+        logloss = None
+        auc = None
+        average_precision = None
+    
+    confusion_mat = confusion_matrix(y_test, y_pred, labels=unique_classes).tolist()   
     end_time=datetime.now()
     build_time=end_time-start_time
     formatted_build_time=format_time(build_time)
@@ -1039,10 +1094,9 @@ async def randomForest(
     results = {
         "accuracy": accuracy,
         "precision": precision,
-        "recall (sensitivity)": sensitivity,
-        "specificity": specificity,
+        "recall (sensitivity)": recall,
         "f1_score": f1,
-         "f1_micro": f1_micro,
+        "f1_micro": f1_micro,
         "f1_macro": f1_macro,
         "f1_weighted": f1_weighted,
         "recall_micro": recall_micro,
@@ -1050,10 +1104,9 @@ async def randomForest(
         "recall_weighted": recall_weighted,
         "log_loss": logloss,
         "auc": auc,
-        "balanced_accuracy":balanced_accuracy,
-        "average-precision":average_precision,
+        "average_precision":average_precision,
         "confusion_matrix":confusion_mat,
-         "build_time":formatted_build_time
+        "build_time":formatted_build_time
     }
 
     return results
@@ -1122,32 +1175,39 @@ async def bagging(
     y_pred = clf.predict(X_test)
     y_pred_proba = clf.predict_proba(X_test) 
 
-    unique_classes = len(np.unique(y_test))  
-    if unique_classes == 2: 
+    unique_classes = np.unique(y_test)
+    if len(unique_classes) == 2:
         avg = 'binary'
     else:
-        avg = 'macro'
-
-    # Calculate metrics
+        avg = 'macro'  
+ 
+    print(unique_classes)
     accuracy = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred, average=avg)
-    recall = recall_score(y_test, y_pred, average=avg) 
-    f1 = f1_score(y_test, y_pred, average=avg)
-    f1_micro = f1_score(y_test, y_pred, average='micro')
-    f1_macro = f1_score(y_test, y_pred, average='macro')
-    f1_weighted = f1_score(y_test, y_pred, average='weighted')
-    recall_micro = recall_score(y_test, y_pred, average='micro')
-    recall_macro = recall_score(y_test, y_pred, average='macro')
-    recall_weighted = recall_score(y_test, y_pred, average='weighted')
-    logloss = log_loss(y_test, y_pred_proba) 
-    tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
-    confusion_mat = confusion_matrix(y_test, y_pred).tolist()
-    specificity = tn / (tn + fp)  
-    sensitivity = recall  
-    auc = roc_auc_score(y_test, y_pred_proba[:, 1])
-    balanced_accuracy = (specificity + sensitivity) / 2
-    average_precision = average_precision_score(y_test, y_pred_proba[:, 1])
+    precision = precision_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+    recall = recall_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+    f1 = f1_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+    f1_micro = f1_score(y_test, y_pred, average='micro', labels=unique_classes, zero_division=0)
+    f1_macro = f1_score(y_test, y_pred, average='macro', labels=unique_classes, zero_division=0)
+    f1_weighted = f1_score(y_test, y_pred, average='weighted', labels=unique_classes, zero_division=0)
+    recall_micro = recall_score(y_test, y_pred, average='micro', labels=unique_classes, zero_division=0)
+    recall_macro = recall_score(y_test, y_pred, average='macro', labels=unique_classes, zero_division=0)
+    recall_weighted = recall_score(y_test, y_pred, average='weighted', labels=unique_classes, zero_division=0)
 
+    if len(unique_classes) > 1:
+        logloss = log_loss(y_test, y_pred_proba, labels=unique_classes)
+        if len(unique_classes) == 2:
+            print(unique_classes)
+            auc = roc_auc_score(y_test, y_pred_proba[:, 1])
+            average_precision = average_precision_score(y_test, y_pred_proba[:, 1])
+        else:
+            auc = roc_auc_score(y_test, y_pred_proba, multi_class='ovr')
+            average_precision = average_precision_score(y_test, y_pred_proba)
+    else:
+        logloss = None
+        auc = None
+        average_precision = None
+    
+    confusion_mat = confusion_matrix(y_test, y_pred, labels=unique_classes).tolist()   
     end_time=datetime.now()
     build_time=end_time-start_time
     formatted_build_time=format_time(build_time)
@@ -1155,8 +1215,7 @@ async def bagging(
     results = {
         "accuracy": accuracy,
         "precision": precision,
-        "recall (sensitivity)": sensitivity,
-        "specificity": specificity,
+        "recall (sensitivity)": recall,
         "f1_score": f1,
         "f1_micro": f1_micro,
         "f1_macro": f1_macro,
@@ -1166,14 +1225,12 @@ async def bagging(
         "recall_weighted": recall_weighted,
         "log_loss": logloss,
         "auc": auc,
-        "balanced_accuracy":balanced_accuracy,
         "average_precision":average_precision,
         "confusion_matrix":confusion_mat,
-         "build_time":formatted_build_time
+        "build_time":formatted_build_time
     }
 
     return results
-
 
 @app.post("/boosting")
 async def boosting(
@@ -1234,36 +1291,42 @@ async def boosting(
     # Train the boosting classifier
     clf.fit(X_train, y_train)
     
-    # Make predictions
     y_pred = clf.predict(X_test)
     y_pred_proba = clf.predict_proba(X_test)
-    unique_classes = len(np.unique(y_test))
-    if unique_classes == 2: 
+
+    unique_classes = np.unique(y_test)
+    if len(unique_classes) == 2:
         avg = 'binary'
-    else: 
-        avg = 'macro'
-
-    # Calculate metrics
+    else:
+        avg = 'macro'  
+ 
+    print(unique_classes)
     accuracy = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred, average=avg)
-    recall = recall_score(y_test, y_pred, average=avg) 
-    f1 = f1_score(y_test, y_pred, average=avg)
-    f1_micro = f1_score(y_test, y_pred, average='micro')
-    f1_macro = f1_score(y_test, y_pred, average='macro')
-    f1_weighted = f1_score(y_test, y_pred, average='weighted')
-    recall_micro = recall_score(y_test, y_pred, average='micro')
-    recall_macro = recall_score(y_test, y_pred, average='macro')
-    recall_weighted = recall_score(y_test, y_pred, average='weighted')
-    logloss = log_loss(y_test, y_pred_proba)  
-    tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
-    confusion_mat = confusion_matrix(y_test, y_pred).tolist()
-    specificity = tn / (tn + fp) 
-    sensitivity = recall  
-    auc = roc_auc_score(y_test, y_pred_proba[:, 1])
-    sensitivity = recall
-    balanced_accuracy = (specificity + sensitivity) / 2
-    average_precision = average_precision_score(y_test, y_pred_proba[:, 1])
+    precision = precision_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+    recall = recall_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+    f1 = f1_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+    f1_micro = f1_score(y_test, y_pred, average='micro', labels=unique_classes, zero_division=0)
+    f1_macro = f1_score(y_test, y_pred, average='macro', labels=unique_classes, zero_division=0)
+    f1_weighted = f1_score(y_test, y_pred, average='weighted', labels=unique_classes, zero_division=0)
+    recall_micro = recall_score(y_test, y_pred, average='micro', labels=unique_classes, zero_division=0)
+    recall_macro = recall_score(y_test, y_pred, average='macro', labels=unique_classes, zero_division=0)
+    recall_weighted = recall_score(y_test, y_pred, average='weighted', labels=unique_classes, zero_division=0)
 
+    if len(unique_classes) > 1:
+        logloss = log_loss(y_test, y_pred_proba, labels=unique_classes)
+        if len(unique_classes) == 2:
+            print(unique_classes)
+            auc = roc_auc_score(y_test, y_pred_proba[:, 1])
+            average_precision = average_precision_score(y_test, y_pred_proba[:, 1])
+        else:
+            auc = roc_auc_score(y_test, y_pred_proba, multi_class='ovr')
+            average_precision = average_precision_score(y_test, y_pred_proba)
+    else:
+        logloss = None
+        auc = None
+        average_precision = None
+    
+    confusion_mat = confusion_matrix(y_test, y_pred, labels=unique_classes).tolist()   
     end_time=datetime.now()
     build_time=end_time-start_time
     formatted_build_time=format_time(build_time)
@@ -1271,21 +1334,19 @@ async def boosting(
     results = {
         "accuracy": accuracy,
         "precision": precision,
-        "recall (sensitivity)": sensitivity,
-        "specificity": specificity,
+        "recall (sensitivity)": recall,
         "f1_score": f1,
-         "f1_micro": f1_micro,
+        "f1_micro": f1_micro,
         "f1_macro": f1_macro,
         "f1_weighted": f1_weighted,
         "recall_micro": recall_micro,
         "recall_macro": recall_macro,
         "recall_weighted": recall_weighted,
         "log_loss": logloss,
-        "balanced_accuracy":balanced_accuracy,
-        "average_precision":average_precision,
         "auc": auc,
+        "average_precision":average_precision,
         "confusion_matrix":confusion_mat,
-         "build_time":formatted_build_time
+        "build_time":formatted_build_time
     }
 
     return results
@@ -1334,33 +1395,41 @@ async def naive_bayes_classification(target_column: str = Form(...),
     
     # Make predictions
     y_pred = clf.predict(X_test)
+    y_pred_proba = clf.predict_proba(X_test)
 
-    unique_classes = len(np.unique(y_test)) 
-    if unique_classes == 2: 
+    unique_classes = np.unique(y_test)
+    if len(unique_classes) == 2:
         avg = 'binary'
-    else: 
-        avg = 'macro'
-
-    y_pred_proba = clf.predict_proba(X_test) 
+    else:
+        avg = 'macro'  
+ 
+    print(unique_classes)
     accuracy = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred, average=avg)
-    recall = recall_score(y_test, y_pred, average=avg)  
-    f1 = f1_score(y_test, y_pred, average=avg)
-    f1_micro = f1_score(y_test, y_pred, average='micro')
-    f1_macro = f1_score(y_test, y_pred, average='macro')
-    f1_weighted = f1_score(y_test, y_pred, average='weighted')
-    recall_micro = recall_score(y_test, y_pred, average='micro')
-    recall_macro = recall_score(y_test, y_pred, average='macro')
-    recall_weighted = recall_score(y_test, y_pred, average='weighted')
-    logloss = log_loss(y_test, y_pred_proba)  
-    tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
-    confusion_mat = confusion_matrix(y_test, y_pred).tolist()
-    specificity = tn / (tn + fp) 
-    sensitivity = recall  
-    auc = roc_auc_score(y_test, y_pred_proba[:, 1])
-    sensitivity = recall
-    balanced_accuracy = (specificity + sensitivity) / 2
-    average_precision = average_precision_score(y_test, y_pred_proba[:, 1])
+    precision = precision_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+    recall = recall_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+    f1 = f1_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+    f1_micro = f1_score(y_test, y_pred, average='micro', labels=unique_classes, zero_division=0)
+    f1_macro = f1_score(y_test, y_pred, average='macro', labels=unique_classes, zero_division=0)
+    f1_weighted = f1_score(y_test, y_pred, average='weighted', labels=unique_classes, zero_division=0)
+    recall_micro = recall_score(y_test, y_pred, average='micro', labels=unique_classes, zero_division=0)
+    recall_macro = recall_score(y_test, y_pred, average='macro', labels=unique_classes, zero_division=0)
+    recall_weighted = recall_score(y_test, y_pred, average='weighted', labels=unique_classes, zero_division=0)
+
+    if len(unique_classes) > 1:
+        logloss = log_loss(y_test, y_pred_proba, labels=unique_classes)
+        if len(unique_classes) == 2:
+            print(unique_classes)
+            auc = roc_auc_score(y_test, y_pred_proba[:, 1])
+            average_precision = average_precision_score(y_test, y_pred_proba[:, 1])
+        else:
+            auc = roc_auc_score(y_test, y_pred_proba, multi_class='ovr')
+            average_precision = average_precision_score(y_test, y_pred_proba)
+    else:
+        logloss = None
+        auc = None
+        average_precision = None
+    
+    confusion_mat = confusion_matrix(y_test, y_pred, labels=unique_classes).tolist()   
     end_time=datetime.now()
     build_time=end_time-start_time
     formatted_build_time=format_time(build_time)
@@ -1368,8 +1437,7 @@ async def naive_bayes_classification(target_column: str = Form(...),
     results = {
         "accuracy": accuracy,
         "precision": precision,
-        "recall (sensitivity)": sensitivity,
-        "specificity": specificity,
+        "recall (sensitivity)": recall,
         "f1_score": f1,
         "f1_micro": f1_micro,
         "f1_macro": f1_macro,
@@ -1379,14 +1447,12 @@ async def naive_bayes_classification(target_column: str = Form(...),
         "recall_weighted": recall_weighted,
         "log_loss": logloss,
         "auc": auc,
-        "balanced_accuracy":balanced_accuracy,
-         "average_precision":average_precision,
+        "average_precision":average_precision,
         "confusion_matrix":confusion_mat,
-         "build_time":formatted_build_time
+        "build_time":formatted_build_time
     }
 
     return results
-
 
 
 @app.post("/knn")
@@ -1436,34 +1502,42 @@ async def knn(
     
     # Make predictions
     y_pred = clf.predict(X_test)
+    y_pred_proba = clf.predict_proba(X_test)
+
     
-    unique_classes = len(np.unique(y_test))  
-    if unique_classes == 2:  
+    unique_classes = np.unique(y_test)
+    if len(unique_classes) == 2:
         avg = 'binary'
-    else: 
+    else:
         avg = 'macro'  
-    y_pred_proba = clf.predict_proba(X_test)  
-   
+ 
+    print(unique_classes)
     accuracy = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred, average=avg)
-    recall = recall_score(y_test, y_pred, average=avg) 
-    f1 = f1_score(y_test, y_pred, average=avg)
-    f1_micro = f1_score(y_test, y_pred, average='micro')
-    f1_macro = f1_score(y_test, y_pred, average='macro')
-    f1_weighted = f1_score(y_test, y_pred, average='weighted')
-    recall_micro = recall_score(y_test, y_pred, average='micro')
-    recall_macro = recall_score(y_test, y_pred, average='macro')
-    recall_weighted = recall_score(y_test, y_pred, average='weighted')
-    logloss = log_loss(y_test, y_pred_proba)  
-    tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
-    confusion_mat = confusion_matrix(y_test, y_pred).tolist()
-    specificity = tn / (tn + fp)  
-    sensitivity = recall  
-    auc = roc_auc_score(y_test, y_pred_proba[:, 1])
-    sensitivity = recall
-    balanced_accuracy = (specificity + sensitivity) / 2
-    average_precision = average_precision_score(y_test, y_pred_proba[:, 1])
+    precision = precision_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+    recall = recall_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+    f1 = f1_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+    f1_micro = f1_score(y_test, y_pred, average='micro', labels=unique_classes, zero_division=0)
+    f1_macro = f1_score(y_test, y_pred, average='macro', labels=unique_classes, zero_division=0)
+    f1_weighted = f1_score(y_test, y_pred, average='weighted', labels=unique_classes, zero_division=0)
+    recall_micro = recall_score(y_test, y_pred, average='micro', labels=unique_classes, zero_division=0)
+    recall_macro = recall_score(y_test, y_pred, average='macro', labels=unique_classes, zero_division=0)
+    recall_weighted = recall_score(y_test, y_pred, average='weighted', labels=unique_classes, zero_division=0)
+
+    if len(unique_classes) > 1:
+        logloss = log_loss(y_test, y_pred_proba, labels=unique_classes)
+        if len(unique_classes) == 2:
+            print(unique_classes)
+            auc = roc_auc_score(y_test, y_pred_proba[:, 1])
+            average_precision = average_precision_score(y_test, y_pred_proba[:, 1])
+        else:
+            auc = roc_auc_score(y_test, y_pred_proba, multi_class='ovr')
+            average_precision = average_precision_score(y_test, y_pred_proba)
+    else:
+        logloss = None
+        auc = None
+        average_precision = None
     
+    confusion_mat = confusion_matrix(y_test, y_pred, labels=unique_classes).tolist()   
     end_time=datetime.now()
     build_time=end_time-start_time
     formatted_build_time=format_time(build_time)
@@ -1471,8 +1545,7 @@ async def knn(
     results = {
         "accuracy": accuracy,
         "precision": precision,
-        "recall (sensitivity)": sensitivity,
-        "specificity": specificity, 
+        "recall (sensitivity)": recall,
         "f1_score": f1,
         "f1_micro": f1_micro,
         "f1_macro": f1_macro,
@@ -1482,14 +1555,12 @@ async def knn(
         "recall_weighted": recall_weighted,
         "log_loss": logloss,
         "auc": auc,
-        "balanced_accuracy":balanced_accuracy,
         "average_precision":average_precision,
         "confusion_matrix":confusion_mat,
-         "build_time":formatted_build_time
+        "build_time":formatted_build_time
     }
 
     return results
-
 
 @app.post("/svm-classification")
 async def svm_classification(
@@ -1534,7 +1605,7 @@ async def svm_classification(
     X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=validation_size, random_state=42)
 
     # Initialize SVM classifier
-    clf = SVC(kernel=kernel, C=C, gamma=gamma)
+    clf = SVC(kernel=kernel, C=C, gamma=gamma,probability=True)
 
     # Fit the classifier to the training data
     clf.fit(X_train, y_train)
@@ -1542,41 +1613,50 @@ async def svm_classification(
     # Make predictions on the test data
     y_pred = clf.predict(X_test)
 
-    unique_classes = len(np.unique(y_test))
-    if unique_classes == 2:  
+   
+    y_pred_proba = clf.predict_proba(X_test)  
+   
+    unique_classes = np.unique(y_test)
+    if len(unique_classes) == 2:
         avg = 'binary'
-    else:  
+    else:
         avg = 'macro'  
-
-    y_pred_proba = clf.decision_function(X_test)  
+ 
+    print(unique_classes)
     accuracy = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred, average=avg)
-    recall = recall_score(y_test, y_pred, average=avg)  
-    f1 = f1_score(y_test, y_pred, average=avg)
-    f1_micro = f1_score(y_test, y_pred, average='micro')
-    f1_macro = f1_score(y_test, y_pred, average='macro')
-    f1_weighted = f1_score(y_test, y_pred, average='weighted')
-    recall_micro = recall_score(y_test, y_pred, average='micro')
-    recall_macro = recall_score(y_test, y_pred, average='macro')
-    recall_weighted = recall_score(y_test, y_pred, average='weighted')
-    logloss = log_loss(y_test, y_pred_proba)  # Log Loss
-    confusion_mat = confusion_matrix(y_test, y_pred).tolist()
-    tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
-    specificity = tn / (tn + fp)
-    auc = roc_auc_score(y_test, y_pred_proba)
-    sensitivity = recall
-    balanced_accuracy = (specificity + sensitivity) / 2
-    average_precision = average_precision_score(y_test, y_pred_proba)
+    precision = precision_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+    recall = recall_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+    f1 = f1_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+    f1_micro = f1_score(y_test, y_pred, average='micro', labels=unique_classes, zero_division=0)
+    f1_macro = f1_score(y_test, y_pred, average='macro', labels=unique_classes, zero_division=0)
+    f1_weighted = f1_score(y_test, y_pred, average='weighted', labels=unique_classes, zero_division=0)
+    recall_micro = recall_score(y_test, y_pred, average='micro', labels=unique_classes, zero_division=0)
+    recall_macro = recall_score(y_test, y_pred, average='macro', labels=unique_classes, zero_division=0)
+    recall_weighted = recall_score(y_test, y_pred, average='weighted', labels=unique_classes, zero_division=0)
+
+    if len(unique_classes) > 1:
+        logloss = log_loss(y_test, y_pred_proba, labels=unique_classes)
+        if len(unique_classes) == 2:
+            print(unique_classes)
+            auc = roc_auc_score(y_test, y_pred_proba[:, 1])
+            average_precision = average_precision_score(y_test, y_pred_proba[:, 1])
+        else:
+            auc = roc_auc_score(y_test, y_pred_proba, multi_class='ovr')
+            average_precision = average_precision_score(y_test, y_pred_proba)
+    else:
+        logloss = None
+        auc = None
+        average_precision = None
     
+    confusion_mat = confusion_matrix(y_test, y_pred, labels=unique_classes).tolist()   
     end_time=datetime.now()
     build_time=end_time-start_time
     formatted_build_time=format_time(build_time)
 
-    return {
+    results = {
         "accuracy": accuracy,
         "precision": precision,
         "recall (sensitivity)": recall,
-        "specificity": specificity,
         "f1_score": f1,
         "f1_micro": f1_micro,
         "f1_macro": f1_macro,
@@ -1586,11 +1666,12 @@ async def svm_classification(
         "recall_weighted": recall_weighted,
         "log_loss": logloss,
         "auc": auc,
-        "balanced_accuracy":balanced_accuracy,
         "average_precision":average_precision,
-        "confusion_matrix": confusion_mat,
+        "confusion_matrix":confusion_mat,
         "build_time":formatted_build_time
     }
+
+    return results
     
 @app.post("/linear")
 async def predict(independent_variables: List[str] = Form(...),

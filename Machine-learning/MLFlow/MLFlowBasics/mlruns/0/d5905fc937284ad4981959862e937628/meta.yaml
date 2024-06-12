@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Komati%20Satya/MLFlowBasics/mlruns/0/d5905fc937284ad4981959862e937628/artifacts
+end_time: 1709538821574
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: d5905fc937284ad4981959862e937628
+run_name: resilient-stoat-58
+run_uuid: d5905fc937284ad4981959862e937628
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1709538813208
+status: 3
+tags: []
+user_id: Komati Satya
