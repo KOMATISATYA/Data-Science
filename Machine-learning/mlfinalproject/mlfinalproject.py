@@ -127,7 +127,7 @@ def replace_special_chars_with_nan(df):
     return df
     
 
-def handle_missing_values(df, method): 
+def handle_missing_values(df, method,fixed_value=None, random_range=(0, 1)): 
     replace_special_chars_with_nan(df)
     if method == 'mean':
         numerical_imputer = SimpleImputer(strategy='mean')
@@ -154,11 +154,31 @@ def handle_missing_values(df, method):
         string_columns = df.select_dtypes(include=['object']).columns
         if not string_columns.empty:
             df[string_columns] = string_imputer.fit_transform(df[string_columns])
+
     elif method == 'most_frequent':
     # Impute missing values using most frequent value for all columns
         imputer = SimpleImputer(strategy='most_frequent')
         df_imputed = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
         return df_imputed
+    
+    elif method == 'random_values':
+        numerical_columns = df.select_dtypes(include=['number']).columns
+        for col in numerical_columns:
+            df[col] = df[col].apply(lambda x: np.random.uniform(random_range[0], random_range[1]) if pd.isna(x) else x)
+        
+        string_columns = df.select_dtypes(include=['object']).columns
+        for col in string_columns:
+            df[col] = df[col].apply(lambda x: ''.join(np.random.choice(list('abcdefghijklmnopqrstuvwxyz'), size=5)) if pd.isna(x) else x)
+    
+    elif method == 'remove_rows':
+        df.dropna(inplace=True)
+    
+    elif method == 'fixed_value':
+        if fixed_value is None:
+            raise ValueError("fixed_value must be specified for method='fixed_value'")
+        
+        df.fillna(fixed_value, inplace=True)
+
     else:
         raise ValueError("Invalid method for handling missing values")
 
@@ -397,7 +417,8 @@ async def source(file: UploadFile = File(...)):
 
   
 @app.post("/handle")    
-async def handle(mode:str=Form(...)):
+async def handle(mode:str=Form(...),
+                 fixed_value:str=Form(None)):
     try:
       global table_name
       if table_name==' ':
@@ -406,7 +427,7 @@ async def handle(mode:str=Form(...)):
       query=f"select * from {table_name}"
       df = pd.read_sql_query(query, conn)
       df.replace(to_replace=[None], value=np.nan, inplace=True)
-      df_processed = handle_missing_values(df, mode)
+      df_processed = handle_missing_values(df, mode,fixed_value)
       processed_table_name = f"{table_name}_{mode}"
       table_name=processed_table_name
       save_file_processed(df_processed, processed_table_name)
@@ -1455,21 +1476,130 @@ async def naive_bayes_classification(target_column: str = Form(...),
     return results
 
 
+# @app.post("/knn")
+# async def knn(
+#         neighbors:int= Form(...),
+#         target_column: str = Form(...),
+#         train_percent: float = Form(...), 
+#         test_percent: float = Form(...), 
+#         validation_percent: float = Form(...),
+#         independent_variables: List[str] = Form(...)
+# ):
+#     start_time=datetime.now()
+#     global table_name
+#     if table_name==' ':
+#         raise HTTPException(status_code=400, detail="First Upload source csv file")
+      
+#     print(table_name)
+#     # query = f"SELECT * FROM {table_name}"
+    
+#     independent_variables_split = [f'"{col.strip()}"' for col in independent_variables[0].split(',')]
+#     independent_variables_joined = ', '.join(independent_variables_split)
+#     query = f"SELECT \"{target_column}\", {independent_variables_joined} FROM \"{table_name}\""
+
+#     data = pd.read_sql_query(query, conn)
+#     if target_column not in data.columns:
+#         raise HTTPException(status_code=400, detail=f"Target column '{target_column}' not found in the data.")
+    
+#     if data.isnull().values.any():
+#         raise HTTPException(status_code=400, detail="Data contains null values.")
+    
+#     string_columns = data.select_dtypes(include=['object']).columns
+#     if len(string_columns) > 0:
+#         raise HTTPException(status_code=400, detail="Data contains string values.")
+
+
+#     X = data.drop(columns=[target_column])
+#     y = data[target_column]
+    
+#     # Split the dataset into training and testing sets
+    
+#     X_train, X_temp, y_train, y_temp = train_test_split(X, y, train_size= train_percent, random_state=42)
+#     validation_size = validation_percent / (test_percent + validation_percent)
+#     X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=validation_size, random_state=42)
+    
+#     # Train the Naive Bayes classifier
+#     clf = KNeighborsClassifier(n_neighbors=neighbors)
+#     clf.fit(X_train, y_train)
+    
+#     # Make predictions
+#     y_pred = clf.predict(X_test)
+#     y_pred_proba = clf.predict_proba(X_test)
+
+    
+#     unique_classes = np.unique(y_test)
+#     if len(unique_classes) == 2:
+#         avg = 'binary'
+#     else:
+#         avg = 'macro'  
+ 
+#     print(unique_classes)
+#     accuracy = accuracy_score(y_test, y_pred)
+#     precision = precision_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+#     recall = recall_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+#     f1 = f1_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
+#     f1_micro = f1_score(y_test, y_pred, average='micro', labels=unique_classes, zero_division=0)
+#     f1_macro = f1_score(y_test, y_pred, average='macro', labels=unique_classes, zero_division=0)
+#     f1_weighted = f1_score(y_test, y_pred, average='weighted', labels=unique_classes, zero_division=0)
+#     recall_micro = recall_score(y_test, y_pred, average='micro', labels=unique_classes, zero_division=0)
+#     recall_macro = recall_score(y_test, y_pred, average='macro', labels=unique_classes, zero_division=0)
+#     recall_weighted = recall_score(y_test, y_pred, average='weighted', labels=unique_classes, zero_division=0)
+
+#     if len(unique_classes) > 1:
+#         logloss = log_loss(y_test, y_pred_proba, labels=unique_classes)
+#         if len(unique_classes) == 2:
+#             print(unique_classes)
+#             auc = roc_auc_score(y_test, y_pred_proba[:, 1])
+#             average_precision = average_precision_score(y_test, y_pred_proba[:, 1])
+#         else:
+#             auc = roc_auc_score(y_test, y_pred_proba, multi_class='ovr')
+#             average_precision = average_precision_score(y_test, y_pred_proba)
+#     else:
+#         logloss = None
+#         auc = None
+#         average_precision = None
+    
+#     confusion_mat = confusion_matrix(y_test, y_pred, labels=unique_classes).tolist()   
+#     end_time=datetime.now()
+#     build_time=end_time-start_time
+#     formatted_build_time=format_time(build_time)
+
+#     results = {
+#         "accuracy": accuracy,
+#         "precision": precision,
+#         "recall (sensitivity)": recall,
+#         "f1_score": f1,
+#         "f1_micro": f1_micro,
+#         "f1_macro": f1_macro,
+#         "f1_weighted": f1_weighted,
+#         "recall_micro": recall_micro,
+#         "recall_macro": recall_macro,
+#         "recall_weighted": recall_weighted,
+#         "log_loss": logloss,
+#         "auc": auc,
+#         "average_precision":average_precision,
+#         "confusion_matrix":confusion_mat,
+#         "build_time":formatted_build_time
+#     }
+
+#     return results
 @app.post("/knn")
 async def knn(
-        neighbors:int= Form(...),target_column: str = Form(...),
+        neighbors: int = Form(...),
+        target_column: str = Form(...),
         train_percent: float = Form(...), 
-                           test_percent: float = Form(...), 
-                           validation_percent: float = Form(...),
-                           independent_variables: List[str] = Form(...)
+        test_percent: float = Form(...), 
+        validation_percent: float = Form(...),
+        independent_variables: List[str] = Form(...),
+        metric: str = Form(...),  
+        weight: str = Form(...)   
 ):
-    start_time=datetime.now()
+    start_time = datetime.now()
     global table_name
-    if table_name==' ':
+    if table_name == ' ':
         raise HTTPException(status_code=400, detail="First Upload source csv file")
       
     print(table_name)
-    # query = f"SELECT * FROM {table_name}"
     
     independent_variables_split = [f'"{col.strip()}"' for col in independent_variables[0].split(',')]
     independent_variables_joined = ', '.join(independent_variables_split)
@@ -1486,32 +1616,45 @@ async def knn(
     if len(string_columns) > 0:
         raise HTTPException(status_code=400, detail="Data contains string values.")
 
-
     X = data.drop(columns=[target_column])
     y = data[target_column]
     
     # Split the dataset into training and testing sets
-    
-    X_train, X_temp, y_train, y_temp = train_test_split(X, y, train_size= train_percent, random_state=42)
+    X_train, X_temp, y_train, y_temp = train_test_split(X, y, train_size=train_percent, random_state=42)
     validation_size = validation_percent / (test_percent + validation_percent)
     X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=validation_size, random_state=42)
     
-    # Train the Naive Bayes classifier
-    clf = KNeighborsClassifier(n_neighbors=neighbors)
+    # Validate metric and weight parameters
+    valid_metrics = ['euclidean', 'manhattan', 'chebyshev', 'mahalanobis']
+    valid_weights = ['uniform', 'distance']
+    
+    if metric.lower() not in valid_metrics:
+        raise HTTPException(status_code=400, detail=f"Invalid metric '{metric}'. Valid options are {valid_metrics}.")
+    
+    if weight.lower() not in valid_weights:
+        raise HTTPException(status_code=400, detail=f"Invalid weight '{weight}'. Valid options are {valid_weights}.")
+    
+    # Train the KNeighborsClassifier
+    if metric.lower() == 'mahalanobis':
+        # Mahalanobis distance requires a precomputed covariance matrix
+        V = np.cov(X_train, rowvar=False)
+        VI = np.linalg.inv(V)
+        clf = KNeighborsClassifier(n_neighbors=neighbors, metric=metric.lower(), metric_params={'VI': VI}, weights=weight.lower())
+    else:
+        clf = KNeighborsClassifier(n_neighbors=neighbors, metric=metric.lower(), weights=weight.lower())
+    
     clf.fit(X_train, y_train)
     
     # Make predictions
     y_pred = clf.predict(X_test)
     y_pred_proba = clf.predict_proba(X_test)
 
-    
     unique_classes = np.unique(y_test)
     if len(unique_classes) == 2:
         avg = 'binary'
     else:
         avg = 'macro'  
- 
-    print(unique_classes)
+    
     accuracy = accuracy_score(y_test, y_pred)
     precision = precision_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
     recall = recall_score(y_test, y_pred, average=avg, labels=unique_classes, zero_division=0)
@@ -1526,7 +1669,6 @@ async def knn(
     if len(unique_classes) > 1:
         logloss = log_loss(y_test, y_pred_proba, labels=unique_classes)
         if len(unique_classes) == 2:
-            print(unique_classes)
             auc = roc_auc_score(y_test, y_pred_proba[:, 1])
             average_precision = average_precision_score(y_test, y_pred_proba[:, 1])
         else:
@@ -1538,9 +1680,9 @@ async def knn(
         average_precision = None
     
     confusion_mat = confusion_matrix(y_test, y_pred, labels=unique_classes).tolist()   
-    end_time=datetime.now()
-    build_time=end_time-start_time
-    formatted_build_time=format_time(build_time)
+    end_time = datetime.now()
+    build_time = end_time - start_time
+    formatted_build_time = format_time(build_time)
 
     results = {
         "accuracy": accuracy,
@@ -1555,9 +1697,9 @@ async def knn(
         "recall_weighted": recall_weighted,
         "log_loss": logloss,
         "auc": auc,
-        "average_precision":average_precision,
-        "confusion_matrix":confusion_mat,
-        "build_time":formatted_build_time
+        "average_precision": average_precision,
+        "confusion_matrix": confusion_mat,
+        "build_time": formatted_build_time
     }
 
     return results
